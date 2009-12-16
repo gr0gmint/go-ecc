@@ -1,33 +1,35 @@
 package "ecc"
 import "big"
+import "bytes"
 import "math"
 import "./ecc.go"
 
 const (
-    a = '\x01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFC";
-    b = 0x0051953EB9618E1C9A1F929A21A0B68540EEA2DA725B99B315F3B8B489918EF109E156193951EC7E937B1652C0BD3BB1BF073573DF883D2C34F1EF451FD46B503F00;
-    G = 0x0200c6858e06b70404e9cd9e3ecb662395b4429c648139053fb521f828af606b4d3dbaa14b5e77efe75928fe1dc127a2ffa8de3348b3c1856a429bf97e7e31c2e5bd66;
-    n = 0x01FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFA51868783BF2F966B7FCC0148F709A5D03BB5C9B8899C47AEBB6FB71E91386409;
+    a = "\x01\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFC";
+    b = "\x00\x51\x95\x3E\xB9\x61\x8E\x1C\x9A\x1F\x92\x9A\x21\xA0\xB6\x85\x40\xEE\xA2\xDA\x72\x5B\x99\xB3\x15\xF3\xB8\xB4\x89\x91\x8E\xF1\x09\xE1\x56\x19\x39\x51\xEC\x7E\x93\x7B\x16\x52\xC0\xBD\x3B\xB1\xBF0\x73\x57\x3D\xF8\x83\xD2C\x34\xF1\xEF\x45\x1F\xD4\x6B\x50\x3F\x00";
+    g = "\x02\x00\xc6\x85\x8e\x06\xb7\x04\x04\xe9\xcd\x9e\x3e\xcb\x66\x23\x95\xb4\x42\x9c\x64\x81\x39\x05\x3f\xb5\x21\xf8\x28\xaf\x60\x6b\x4d\x3d\xba\xa1\x4b\x5e\x77\xef\xe7\x59\x28\xfe\x1d\xc1\x27\xa2\xff\xa8\xde\x33\x48\xb3\xc1\x85\x6a\x42\x9b\xf9\x7e\x7e\x31\xc2\xe5\xbd\x66";
+    n = "\x01\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFA\x51\x86\x87\x83\xBF\x2F\x96\x6B\x7F\xCC\x01\x48\xF7\x09\xA5\xD0\x3B\xB5\xC9\xB8\x89\x9C\x47\xAE\xBB\x6F\xB7\x1E\x91\x38\x64\x09";
     h= 0x01;
 )
 
 
 
+
 func NewSecp512r1() *Curve {
     curve := new(Secp512r1);
-    curve.p = new(big.Int);
-    curve.a = new(big.Int);
-    curve.b = new(big.Int);
-    curve.xG = new(big.Int);
-    curve.yG = new(big.Int);
-    curve.n = new(big.Int);
-    curve.h = big.NewInt(1);
+    curve.P = new(big.Int);
+    curve.A = new(big.Int);
+    curve.B = new(big.Int);
+    curve.N = new(big.Int);
+    curve.H = big.NewInt(h);
+    curve.G = new(Point);
     
-    curve.p.Exp(NewInt(2),NewInt(521)); //subtract with 1
-    curve.a.SetBytes(a);
-    curve.b.SetBytes(b);
-    curve.G.SetBytes(G);
-    curve.n.SetBytes(n);
+    curve.P.Exp(NewInt(2),NewInt(521));
+    curve.P.Sub(curve.P, NewInt(1));
+    curve.A.SetBytes(bytes.NewBufferString(a));
+    curve.B.SetBytes(bytes.NewBufferString(b));
+    //curve.G.SetBytes(NewBufferString(g));
+    curve.N.SetBytes(bytes.NewBufferString(n));
     return curve;
     
 }
