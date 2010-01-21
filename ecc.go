@@ -1,6 +1,7 @@
-package "ecc"
+package ecc
 
 import "./secp512r1.go"
+import "./conversion.go"
 
 import "big"
 
@@ -51,8 +52,50 @@ type Curve struct {
     G *Point;
 }
 
-func (curve *Curve) Multiply(n *big.Int, p *Point) *Point {
+var BigTwo = big.NewInt(2);
+var BigThree = big.NewInt(3);
+
+func (curve *Curve) double(p *Point) *Point {
+    lamda_numerator = new(big.Int);
+    lambda_denominator = new(big.Int);
+    lambda = new(big.Int);
+    lambda_numerator.Exp(p.x, BigTwo, curve.P);
+    lambda_numerator.Mul(lambda_numerator, BigThree);
+    lambda_numerator.Sub(lambda_numerator, curve.A);
+    lambda_denominator.Mul(BigTwo, p.y);
+    lambda_denominator = modInverse(lambda_denominator, curve.P);
+    lambda.Mul(lambda_numerator, lambda_denominator);
+    lambda = lambda.Mod(lambda, curve.P);
     
+    p3 := new(Point);
+    p3.x.Exp(lambda, BigTwo);
+    
+    temp := new(big.Int);
+    p3.x.Sub(p3.x, temp.Mul(BigTwo,p.x));
+    p3.x = p3.x.Mod(p3.x, curve.P);
+    
+    p3.y.Sub(p.x, p3.x);
+    p3.y.Mul(p3.y, lambda);
+    p3.y = p3.y.Mod(p3.y, curve.P);
+    return p3;
+}
+
+func (curve *Curve) Multiply(n *big.Int, p *Point) *Point {
+    if p == nil {
+        return p
+    }
+    bitlength := n.Len()
+    bytes := n.Bytes()
+    length := len(bytes);
+    leftmost := 0x01 << 7
+    
+    for i := 0; i < length; i++ {
+        if ((leftmost >> (i % 8) ) & int(bytes[i/8])) {
+            for j:= 0; j < bitlength - i; j++ {
+                
+            }
+        }
+    }
 }
 func (curve *Curve) Add(p1, p2 *Point) *Point {
     if p1 == nil {
@@ -71,9 +114,15 @@ func (curve *Curve) Add(p1, p2 *Point) *Point {
     lambda = lambda.Mod(lambda, curve.P);
     
     p3 := NewPoint();
-    p3.x.Exp(lambda, big.NewInt(2), curve.P);
+    p3.x.Exp(lambda, BigTwo, curve.P);
     p3.x.Sub(p3.x, p1.x);
     p3.x.Sub(p3.x, p2.x);
     p3.x = p3.x.Mod(p3.x, curve.P);
     
+    p3.y.Sub(p1.x,p3.x);
+    p3.y.Mul(lambda,p3.y);
+    p3.y.Sub(p3.y, p1.y);
+    p3.y = p3.y.Mod(p3.y, curve.P);
+    
+    return p3;
 }
