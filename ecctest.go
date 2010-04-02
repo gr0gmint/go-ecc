@@ -39,10 +39,26 @@ func modInverse(a, n *big.Int) (ia *big.Int, ok bool) {
 
 func main() {
     c := ecc.NewSecp512r1()
-    k := big.NewInt(255) 
-    lol := c.Multiply(k,c.G)
-    fmt.Printf("G: %s       %s\n\n", c.G.X, c.G.Y)
-    fmt.Printf("k*G: %s       %s\n\n", lol.X, lol.Y)
+    ka := big.NewInt(687687)
+    kb := big.NewInt(8798451)
+    kab := big.NewInt(8798451*687687) 
+    Qa := c.Multiply(ka,c.G)
+    Qb := c.Multiply(kb,c.G)
+    Qab := c.Multiply(kab,c.G)
+    shared1 := c.Multiply(ka,Qb)
+    shared2 := c.Multiply(kb,Qa)
+    //pointofinf := c.Multiply(c.N,c.G)
+    fmt.Printf("Qa: %s       %s\n\n", Qa.X, Qa.Y)
+    
+    fmt.Printf("Qb: %s       %s\n\n", Qb.X, Qb.Y)
+    
+    fmt.Printf("Qab: %s       %s\n\n", Qab.X, Qab.Y)
+    
+    fmt.Printf("shared1: %s       %s\n\n", shared1.X, shared1.Y)
+    
+    fmt.Printf("shared2: %s       %s\n\n", shared2.X, shared2.Y)
+    
+    //fmt.Printf("pointofinf: %s       %s\n\n", pointofinf.X, pointofinf.Y)
     //ki,_ := modInverse(k, c.N)
     //lol2 := c.Multiply(ki, lol)
     //fmt.Printf("1/k = %s\n", ki)
