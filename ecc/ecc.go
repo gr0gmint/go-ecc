@@ -62,7 +62,7 @@ func (curve *Curve) double(p *Point) *Point {
     lambda := new(big.Int)
     lambda_numerator.Exp(p.X, BigTwo, curve.P)
     lambda_numerator.Mul(lambda_numerator, BigThree)
-    lambda_numerator.Sub(lambda_numerator, curve.A)
+    lambda_numerator.Add(lambda_numerator, curve.A)
     lambda_denominator.Mul(BigTwo, p.Y)
     lambda_denominator,ok := modInverse(lambda_denominator, curve.P)
     if !ok {
@@ -73,15 +73,19 @@ func (curve *Curve) double(p *Point) *Point {
     lambda = lambda.Mod(lambda, curve.P)
     
     p3 := NewPoint()
-    
-    p3.Y.Exp(lambda, BigTwo, curve.P)
-    
+   
     temp := new(big.Int)
-    p3.X.Sub(p3.X, temp.Mul(BigTwo,p.X))
+    temp2 := new(big.Int)
+    //temp3 := new(big.Int)
+    //temp4 := new(big.Int)
+    //temp5 := new(big.Int)
+    //temp6 := new(big.Int)
+    p3.X.Sub(temp.Exp(lambda, BigTwo, curve.P), temp2.Mul(BigTwo,p.X))
     p3.X = p3.X.Mod(p3.X, curve.P)
     
     p3.Y.Sub(p.X, p3.X)
     p3.Y.Mul(p3.Y, lambda)
+    p3.Y = p3.Y.Sub(p3.Y, p.Y)
     p3.Y = p3.Y.Mod(p3.Y, curve.P)
     if p3.X.Cmp(BigZero) == -1 { //if X is negative
         p3.X.Neg(p3.X)
@@ -144,7 +148,11 @@ func (curve *Curve) Add(p1, p2 *Point) *Point {
         lambda_denominator.Neg(lambda_denominator)
         lambda_denominator.Sub(curve.P, lambda_denominator)
     }
-    lambda_denominator, _ = modInverse(lambda_denominator, curve.P)
+    lambda_denominator, ok := modInverse(lambda_denominator, curve.P)
+    if !ok {
+        fmt.Printf("Add : Not ok\n")
+        return nil
+    }
     lambda.Mul(lambda_numerator, lambda_denominator)
     lambda = lambda.Mod(lambda, curve.P)
     
